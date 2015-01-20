@@ -503,7 +503,7 @@ AsyncSocket *asyncSocket;
                       [msg release];
                         
                     
-                      if(ack==1)
+                      if(ack==1||type == 0)
                       {
                          [self sendAckMsg:msgid];//普通消息需要回执
                       }
