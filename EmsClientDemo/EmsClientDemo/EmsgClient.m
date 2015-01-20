@@ -450,16 +450,30 @@ AsyncSocket *asyncSocket;
         {
             NSDictionary *entity=[dic objectForKey:@"entity"];
             NSString *result=[entity objectForKey:@"result"];
+            NSDictionary *envelope=[dic objectForKey:@"envelope"];
+
             if(result!=nil&&[result isEqual:@"ok"])//登陆成功
             {
                 hasAuth=YES;
-               [mEmsgClient setIsLogOut:NO];
+                [mEmsgClient setIsLogOut:NO];
                 [self sendHeartPacket];//发送心跳包
                 if([delegate respondsToSelector:@selector(didAuthSuccessed)])
                 {
                     [delegate didAuthSuccessed];
+
                 }
-                
+               //执行登陆成功的消息回执
+              if(envelope!=nil){
+
+                NSString *mid =[envelope objectForKey:@"id"];
+                int  mtype = [[envelope objectForKey:@"type"] intValue];
+
+                if(mtype==0&&mid!=nil){
+
+                  [self sendAckMsg:mid];
+                 }
+               }
+
                 NSDictionary *delay=[dic objectForKey:@"delay"];
                 NSArray *array=[delay objectForKey:@"packets"];
                 if(array!=nil)
@@ -503,7 +517,7 @@ AsyncSocket *asyncSocket;
                       [msg release];
                         
                     
-                      if(ack==1||type == 0)
+                      if(ack==1)
                       {
                          [self sendAckMsg:msgid];//普通消息需要回执
                       }
